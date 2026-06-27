@@ -1,5 +1,5 @@
 /*
-        Projeto Selecao Brasileira
+        Projeto Seleção Brasileira
 Integrantes do projeto: Christian, Gabriel e José Elias
 
 */
@@ -20,14 +20,15 @@ typedef struct{
     int ativo;
 } Jogador;
 
-void inserirJogador(Jogador *p, int *c);
+Jogador inserirJogador(Jogador *p, int c);
 void listarJogadores(Jogador *p, int c);
 void exibirJogador(Jogador *p);
-void editarJogadores(Jogador *p, int c);
-void pesquisarJogadores(Jogador *p, int c);
-void excluirJogador(Jogador *p, int *c);
+void editarJogador(Jogador *p, int c);
+void pesquisarJogador(Jogador *p, int c);
+void excluirJogador(Jogador *p, int c);
 void estatisticas(Jogador *p, int c);
 void limpaTela();
+void limpaBuffer();
 
 int main()
 {
@@ -143,7 +144,7 @@ int main()
         printf("0. Sair\n");
         printf("Digite uma opcao: ");
         scanf("%d", &menu);
-        fflush(stdin);
+        limpaBuffer();
 
         switch(menu){
             case 0:
@@ -151,7 +152,13 @@ int main()
                 break;
             case 1:
                 limpaTela();
-                inserirJogador(&selecao[0], &contadorJogadores);
+                if(contadorJogadores < QNT_JOGADORES){
+                    selecao[contadorJogadores] = inserirJogador(&selecao[0], contadorJogadores);
+                    contadorJogadores++;
+                }
+                else {
+                    printf("Lista de jogadores cheia!\n\n");
+                }
                 break;
             case 2:
                 limpaTela();
@@ -159,15 +166,15 @@ int main()
                 break;
             case 3:
                 limpaTela();
-                editarJogadores(&selecao[0], contadorJogadores);
+                editarJogador(&selecao[0], contadorJogadores);
                 break;
             case 4:
                 limpaTela();
-                excluirJogador(&selecao[0], &contadorJogadores);
+                excluirJogador(&selecao[0], contadorJogadores);
                 break;
             case 5:
                 limpaTela();
-                pesquisarJogadores(&selecao[0], contadorJogadores);
+                pesquisarJogador(&selecao[0], contadorJogadores);
                 break;
             case 6:
                 limpaTela();
@@ -179,77 +186,86 @@ int main()
                 break;
         }
     } while(menu != 0);
+
+    return 0;
 }
 
-void inserirJogador(Jogador *p, int *c){
-    if(*c >= QNT_JOGADORES){
-        printf("Limite de jogadores atingido!\n\n");
-        return;
-    }
-    
-    Jogador *j = &p[*c];
+Jogador inserirJogador(Jogador *p, int c){   
+    Jogador j;
+    Jogador *pAux = p;
     int camisaIgual = 0;
 
     printf("Nome do jogador: ");
-    fgets(j->nome, sizeof(j->nome), stdin);
-    fflush(stdin);
-    j->nome[strcspn(j->nome, "\n")] = '\0';
+    fgets(j.nome, sizeof(j.nome), stdin);
+    j.nome[strcspn(j.nome, "\n")] = '\0';
 
     do{
+        p = pAux;
         do{
             printf("Numero da camisa: ");
-            scanf("%d", &j->numCamisa);
-            fflush(stdin);
+            scanf("%d", &j.numCamisa);
 
-            if(j->numCamisa < 1 || j->numCamisa > QNT_JOGADORES){
-                printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n", QNT_JOGADORES);
+            if(j.numCamisa < 1 || j.numCamisa > QNT_JOGADORES){
+                printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n\n", QNT_JOGADORES);
             }
-        } while(j->numCamisa < 1 || j->numCamisa > QNT_JOGADORES);
+        } while(j.numCamisa < 1 || j.numCamisa > QNT_JOGADORES);
 
-        for(int i=0; i < *c; i++){
-            if(j->numCamisa == p[i].numCamisa){
+        for(int i=0; i < c; i++){
+            if(j.numCamisa == p->numCamisa){    // Não da pra usar a camisa de um jogador inativo
                 printf("Camisa ja cadastrada!\n");
+                printf("Jogador com a camisa %d: %s\n\n", p->numCamisa, p->nome);
                 camisaIgual = 1;
                 break;
             }
             else {
                 camisaIgual = 0;
             }
+            p++;
         }
     } while(camisaIgual == 1);
 
     do{
         printf("Idade: ");
-        scanf("%d", &j->idade);
-        fflush(stdin);
+        scanf("%d", &j.idade);
 
-        if(j->idade < 15){
+        if(j.idade < 15){
             printf("Idade invalida! Nao sao convocados jogadores menores de 15 anos!\n");
         }
-    } while(j->idade < 15);
+        if(j.idade > 60){
+            printf("O jogador ja deveria ter se aposentado! Apenas jogadores mais novos que 60 anos!\n");
+        }
+    } while(j.idade < 15 || j.idade > 60);
 
     do{
-        printf("Altura: ");
-        scanf("%f", &j->altura);
-        fflush(stdin);
+        printf("Altura(em metros): ");
+        scanf("%f", &j.altura);
 
-        if(j->altura < 1.3){
+        if(j.altura < 1.3){
             printf("Impossivel que alguem menor que 1.30m seja um jogador profissional de futebol!\n");
         }
-    } while(j->altura < 1.3);
 
-    printf("Posicao: ");
-    fgets(j->posicao, sizeof(j->posicao), stdin);
-    fflush(stdin);
-    j->posicao[strcspn(j->posicao, "\n")] = '\0';
+        if(j.altura > 2.4){
+            printf("Parece que voce se confundiu com a convocacao do basquete! Ate 2.40m! \n");
+        }
+    } while(j.altura < 1.3 || j.altura > 2.4);
+
+    printf("Posicao(texto): ");
+    limpaBuffer();
+    fgets(j.posicao, sizeof(j.posicao), stdin);
+    j.posicao[strcspn(j.posicao, "\n")] = '\0';
 
     printf("Time: ");
-    fgets(j->time, sizeof(j->time), stdin);
-    fflush(stdin);
-    j->time[strcspn(j->time, "\n")] = '\0';
+    fgets(j.time, sizeof(j.time), stdin);
+    j.time[strcspn(j.time, "\n")] = '\0';
 
-    j->ativo = 1;
-    (*c)++;
+    j.ativo = 1;
+
+    printf("\nJogador inserido com sucesso!\n");
+    printf("\nPressione enter para voltar ao menu.\n");
+    getchar();
+    limpaTela();
+
+    return j;
 }
 
 void listarJogadores(Jogador *p, int c){
@@ -265,72 +281,115 @@ void listarJogadores(Jogador *p, int c){
 }
 
 void exibirJogador(Jogador *p){
-    printf("\nNome: %s \n", p->nome);
-    printf("Numero da camisa: %d \n", p->numCamisa);
-    printf("Idade: %d \n", p->idade);
-    printf("Altura: %.2f \n", p->altura);
-    printf("Posicao: %s \n", p->posicao);
+    printf("\nNome: %s\n", p->nome);
+    printf("Numero da camisa: %d\n", p->numCamisa);
+    printf("Idade: %d anos\n", p->idade);
+    printf("Altura: %.2fm\n", p->altura);
+    printf("Posicao: %s\n", p->posicao);
     printf("Time: %s\n", p->time);
 }
 
-void editarJogadores(Jogador *p, int c){
-    int camisa;
-    printf("Digite o numero da camisa do jogador: ");
+void editarJogador(Jogador *p, int c){
+    Jogador *pOriginal = p;
+    Jogador *pAux = p;
+    int camisa, trocarCamisa, novaCamisa, camisaIgual = 0;
+    printf("Digite o numero da camisa do jogador que voce deseja editar: ");
     scanf("%d", &camisa);
-    fflush(stdin);
 
     for(int i=0; i < c; i++){
         if(p->numCamisa == camisa && p->ativo == 1){
-            printf("Jogador encontrado! Editando...\n");
+            printf("\nJogador encontrado! Editando...\n\n");
             printf("Nome do jogador: ");
+            limpaBuffer();
             fgets(p->nome, sizeof(p->nome), stdin);
-            fflush(stdin);
             p->nome[strcspn(p->nome, "\n")] = '\0';
 
-            printf("Numero da camisa: ");
-            scanf("%d", &p->numCamisa);
-            fflush(stdin);
+            do{
+                printf("Voce deseja alterar o numero da camisa? (digite 1 para sim, 0 para nao): ");
+                scanf("%d", &trocarCamisa);
+                limpaBuffer();
+                if(trocarCamisa < 0 || trocarCamisa > 1){
+                    printf("Digite um numero valido!\n");
+                }
+            } while(trocarCamisa < 0 || trocarCamisa > 1);
+
+            if(trocarCamisa == 1){
+                do{
+                    pAux = pOriginal;
+                    do{
+                        printf("Numero da camisa: ");
+                        scanf("%d", &novaCamisa);
+
+                        if(novaCamisa < 1 || novaCamisa > QNT_JOGADORES){
+                            printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n", QNT_JOGADORES);
+                        }
+                    } while(novaCamisa < 1 || novaCamisa > QNT_JOGADORES);
+
+                    for(int i=0; i < c; i++){
+                        if(novaCamisa == pAux->numCamisa && novaCamisa != p->numCamisa){
+                            printf("Camisa ja cadastrada!\n");
+                            camisaIgual = 1;
+                            break;
+                        }
+                        else {
+                            camisaIgual = 0;
+                        }
+                        pAux++;
+                    }
+                } while(camisaIgual == 1);
+
+                p->numCamisa = novaCamisa;
+            }
 
             do{
                 printf("Idade: ");
                 scanf("%d", &p->idade);
-                fflush(stdin);
 
                 if(p->idade < 15){
                     printf("Idade invalida! Nao sao convocados jogadores menores de 15 anos!\n");
                 }
-            } while(p->idade < 15);
+
+                if(p->idade > 60){
+                    printf("O jogador ja deveria ter se aposentado! Apenas jogadores mais novos que 60 anos!\n");
+                }
+            } while(p->idade < 15 || p->idade > 60);
 
             do{
-                printf("Altura: ");
+                printf("Altura(em metros): ");
                 scanf("%f", &p->altura);
-                fflush(stdin);
 
                 if(p->altura < 1.3){
                     printf("Impossivel que alguem menor que 1.30m seja um jogador profissional de futebol!\n");
                 }
-            } while(p->altura < 1.3);
 
-            printf("Posicao: ");
+                if(p->altura > 2.4){
+                    printf("Parece que voce se confundiu com a convocacao do basquete! Ate 2.40m! \n");
+                }
+            } while(p->altura < 1.3 || p->altura > 2.4);
+
+            printf("Posicao(texto): ");
+            limpaBuffer();
             fgets(p->posicao, sizeof(p->posicao), stdin);
-            fflush(stdin);
             p->posicao[strcspn(p->posicao, "\n")] = '\0';
 
             printf("Time: ");
             fgets(p->time, sizeof(p->time), stdin);
-            fflush(stdin);
             p->time[strcspn(p->time, "\n")] = '\0';
 
             p->ativo = 1;
 
+            printf("\nJogador editado com sucesso!\n");
+            printf("\nPressione enter para voltar ao menu.\n");
+            getchar();
+            limpaTela();
             return;
         }
         p++;
     }
-    printf("Jogador não encontrado!\n\n");
+    printf("Jogador nao encontrado!\n\n");
 }
 
-void pesquisarJogadores(Jogador *p, int c){
+void pesquisarJogador(Jogador *p, int c){
     int menu;
     char nome[30];
     int numCamisa;
@@ -352,7 +411,6 @@ void pesquisarJogadores(Jogador *p, int c){
     do{
         printf("Digite uma opcao: ");
         scanf("%d", &menu);
-        fflush(stdin);
 
         if(menu < 0 || menu > 6){
             printf("Opcao Invalida! Digite uma opcao valida.\n\n");
@@ -361,16 +419,16 @@ void pesquisarJogadores(Jogador *p, int c){
 
     switch(menu){
         case 0:
-            printf("Retornando ao menu...\n\n");
+            printf("Retornando ao menu principal...\n\n");
             break;
         case 1:
             printf("Digite o nome: ");
+            limpaBuffer();
             fgets(nome, sizeof(nome), stdin);
-            fflush(stdin);
             nome[strcspn(nome, "\n")] = '\0';
 
             for(int i=0; i < c; i++){
-                if(strstr(p->nome, nome) != NULL){
+                if(strstr(p->nome, nome) != NULL && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -380,10 +438,10 @@ void pesquisarJogadores(Jogador *p, int c){
         case 2:
             printf("Digite o numero da camisa: ");
             scanf("%d", &numCamisa);
-            fflush(stdin);
+            limpaBuffer();
 
             for(int i=0; i < c; i++){
-                if(p->numCamisa == numCamisa){
+                if(p->numCamisa == numCamisa && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -393,10 +451,10 @@ void pesquisarJogadores(Jogador *p, int c){
         case 3:
             printf("Digite a idade: ");
             scanf("%d", &idade);
-            fflush(stdin);
+            limpaBuffer();
 
             for(int i=0; i < c; i++){
-                if(p->idade == idade){
+                if(p->idade == idade && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -404,12 +462,12 @@ void pesquisarJogadores(Jogador *p, int c){
             }
             break;
         case 4:
-            printf("Digite a altura: ");
+            printf("Digite a altura(em metros): ");
             scanf("%f", &altura);
-            fflush(stdin);
+            limpaBuffer();
 
             for(int i=0; i < c; i++){
-                if(p->altura == altura){
+                if(p->altura == altura && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -417,13 +475,13 @@ void pesquisarJogadores(Jogador *p, int c){
             }
             break;
         case 5:
-            printf("Digite a posicao: ");
+            printf("Digite a posicao(texto): ");
+            limpaBuffer();
             fgets(posicao, sizeof(posicao), stdin); 
-            fflush(stdin);
             posicao[strcspn(posicao, "\n")] = '\0';
 
             for(int i=0; i < c; i++){
-                if(strstr(p->posicao, posicao) != NULL){
+                if(strstr(p->posicao, posicao) != NULL && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -432,12 +490,12 @@ void pesquisarJogadores(Jogador *p, int c){
             break;
         case 6:
             printf("Digite o time: ");
+            limpaBuffer();
             fgets(time, sizeof(time), stdin);
-            fflush(stdin);
             time[strcspn(time, "\n")] = '\0';
 
             for(int i=0; i < c; i++){   
-                if(strstr(p->time, time) != NULL){
+                if(strstr(p->time, time) != NULL && p->ativo == 1){
                     exibirJogador(p);
                     jogadorEncontrado = 1;
                 }
@@ -448,7 +506,7 @@ void pesquisarJogadores(Jogador *p, int c){
             break;
     }
     if(jogadorEncontrado == 0){
-        printf("\nJogador nao encontrado!\n\n");
+        printf("\nJogador nao encontrado para essa pesquisa!\n\n");
     }
     if(menu != 0){
         printf("\nPressione enter para voltar ao menu.\n");
@@ -457,22 +515,15 @@ void pesquisarJogadores(Jogador *p, int c){
     limpaTela();
 }
 
-void excluirJogador(Jogador *p, int *c){
+void excluirJogador(Jogador *p, int c){
     int camisa;
     printf("Digite o numero da camisa do jogador a ser excluido: ");
     scanf("%d", &camisa);
 
-    for(int i=0; i < *c; i++){
+    for(int i=0; i < c; i++){
         if(p->numCamisa == camisa && p->ativo == 1){
-            // strcpy(p->nome, "");
-            // p->numCamisa = 0;
-            // p->idade = 0;
-            // p->altura = 0;
-            // strcpy(p->posicao, "");
-            // strcpy(p->time, "");
             p->ativo = 0;
             printf("\nJogador excluido com sucesso!\n\n");
-            //(*c)--;
             return;
         }
         p++;
@@ -482,27 +533,53 @@ void excluirJogador(Jogador *p, int *c){
 
 void estatisticas(Jogador *p, int c){
     int totalJogadoresAtivos = 0;
+    float somaIdade = 0, somaAltura = 0;
 
-    float somaIdade = 0;
-    float somaAltura = 0;
-
-    int menorIdade = p->idade;
-    int maiorIdade = p->idade;
+    int menorIdade = 0, maiorIdade = 0;
+    float menorAltura = 0, maiorAltura = 0;
 
     char jogadorMaisNovo[30];
-    strcpy(jogadorMaisNovo, p->nome);
-
+    strcpy(jogadorMaisNovo, "");
     char jogadorMaisVelho[30];
-    strcpy(jogadorMaisVelho, p->nome);
-
-    float menorAltura = p->altura;
-    float maiorAltura = p->altura;
+    strcpy(jogadorMaisVelho, "");
 
     char jogadorMaisBaixo[30];
-    strcpy(jogadorMaisBaixo, p->nome);
-
+    strcpy(jogadorMaisBaixo, "");
     char jogadorMaisAlto[30];
+    strcpy(jogadorMaisAlto, "");
+
+    Jogador *pAux = p;
+    int primeiroAtivo = -1;
+
+    for(int i=0; i < c; i++){
+        if(p->ativo != 0){
+            primeiroAtivo = i;
+            break;
+        }
+        p++;
+    }
+
+    if(primeiroAtivo == -1){
+        printf("Nenhum jogador cadastrado!\n");
+        printf("\nPressione enter para voltar ao menu.\n");
+        getchar();
+        limpaTela();
+        return;
+    }
+
+    menorIdade = p->idade;
+    maiorIdade = p->idade;
+    
+    strcpy(jogadorMaisNovo, p->nome);
+    strcpy(jogadorMaisVelho, p->nome);
+
+    menorAltura = p->altura;
+    maiorAltura = p->altura;
+
+    strcpy(jogadorMaisBaixo, p->nome);
     strcpy(jogadorMaisAlto, p->nome);
+
+    p = pAux;
 
     for(int i=0; i < c; i++){
         if(p->ativo != 0){
@@ -533,18 +610,14 @@ void estatisticas(Jogador *p, int c){
         p++;
     }
 
-    if(totalJogadoresAtivos > 0){
-        printf("Total de jogadores ativos: %d\n", totalJogadoresAtivos);
-        printf("Media de idade: %.2f anos\n", somaIdade / totalJogadoresAtivos);
-        printf("Media de altura: %.2fm\n", somaAltura / totalJogadoresAtivos);
-        printf("Jogador mais novo: %s, com %d anos\n", jogadorMaisNovo, menorIdade);
-        printf("Jogador mais velho: %s, com %d anos\n", jogadorMaisVelho, maiorIdade);
-        printf("Jogador mais baixo: %s, com %.2fm\n", jogadorMaisBaixo, menorAltura);
-        printf("Jogador mais alto: %s, com %.2fm\n", jogadorMaisAlto, maiorAltura);
-    }
-    else{
-        printf("Nenhum jogador cadastrado!\n");
-    }
+    printf("Total de jogadores ativos: %d\n", totalJogadoresAtivos);
+    printf("Media de idade: %.2f anos\n", somaIdade / totalJogadoresAtivos);
+    printf("Media de altura: %.2fm\n", somaAltura / totalJogadoresAtivos);
+    printf("Jogador mais novo: %s, com %d anos\n", jogadorMaisNovo, menorIdade);
+    printf("Jogador mais velho: %s, com %d anos\n", jogadorMaisVelho, maiorIdade);
+    printf("Jogador mais baixo: %s, com %.2fm\n", jogadorMaisBaixo, menorAltura);
+    printf("Jogador mais alto: %s, com %.2fm\n", jogadorMaisAlto, maiorAltura);
+
     printf("\nPressione enter para voltar ao menu.\n");
     getchar();
     limpaTela();
@@ -552,4 +625,11 @@ void estatisticas(Jogador *p, int c){
 
 void limpaTela(){
     system("cls || clear");
+}
+
+void limpaBuffer(){
+    int c;
+    do{
+        c = getchar();
+    } while(c != '\n' && c != EOF);
 }
