@@ -22,20 +22,23 @@ typedef struct{
 
 Jogador inserirJogador(Jogador *p, int c);
 void listarJogadores(Jogador *p, int c);
+int verificaAtivo(Jogador *p, int c);
 void exibirJogador(Jogador *p);
 void editarJogador(Jogador *p, int c);
+int verificaCamisa(int camisa, Jogador *p, int c);
 void pesquisarJogador(Jogador *p, int c);
 void excluirJogador(Jogador *p, int c);
 void estatisticas(Jogador *p, int c);
 void limpaTela();
 void limpaBuffer();
+void populaVetor(Jogador *p, int *c);
 
 int main()
 {
     Jogador selecao[QNT_JOGADORES];
-    int menu = 1, contadorJogadores = 11;
+    int menu = 1, contadorJogadores = 0;
 
-    for(int i=0; i < QNT_JOGADORES; i++){
+    for(int i = 0; i< QNT_JOGADORES; i++){
         strcpy(selecao[i].nome, "");
         selecao[i].numCamisa = 0;
         selecao[i].idade = 0;
@@ -44,94 +47,6 @@ int main()
         strcpy(selecao[i].time, "");
         selecao[i].ativo = 0;
     }
-    
-    strcpy(selecao[0].nome, "Alisson");
-    selecao[0].numCamisa = 1;
-    selecao[0].idade = 29;
-    selecao[0].altura = 1.91;
-    strcpy(selecao[0].posicao, "Goleiro");
-    strcpy(selecao[0].time, "Liverpool");
-    selecao[0].ativo = 1;
-    
-    strcpy(selecao[1].nome, "Ederson");
-    selecao[1].numCamisa = 2;
-    selecao[1].idade = 26;
-    selecao[1].altura = 1.83;
-    strcpy(selecao[1].posicao, "Meia Central");
-    strcpy(selecao[1].time, "Atalanta");
-    selecao[1].ativo = 1;
-    
-    strcpy(selecao[2].nome, "Gabriel Magalhaes");
-    selecao[2].numCamisa = 3;
-    selecao[2].idade = 28;
-    selecao[2].altura = 1.88;
-    strcpy(selecao[2].posicao, "Zagueiro");
-    strcpy(selecao[2].time, "Arsenal");
-    selecao[2].ativo = 1;
-    
-    strcpy(selecao[3].nome, "Marquinhos");
-    selecao[3].numCamisa = 4;
-    selecao[3].idade = 32;
-    selecao[3].altura = 1.83;
-    strcpy(selecao[3].posicao, "Zagueiro");
-    strcpy(selecao[3].time, "PSG");
-    selecao[3].ativo = 1;
-    
-    strcpy(selecao[4].nome, "Casemiro");
-    selecao[4].numCamisa = 5;
-    selecao[4].idade = 34;
-    selecao[4].altura = 1.83;
-    strcpy(selecao[4].posicao, "Volante");
-    strcpy(selecao[4].time, "Manchester United");
-    selecao[4].ativo = 1;
-    
-    strcpy(selecao[5].nome, "Alex Sandro");
-    selecao[5].numCamisa = 6;
-    selecao[5].idade = 35;
-    selecao[5].altura = 1.80;
-    strcpy(selecao[5].posicao, "Lat Esquerdo");
-    strcpy(selecao[5].time, "Flamengo");
-    selecao[5].ativo = 1;
-    
-    strcpy(selecao[6].nome, "Vinicius Jr.");
-    selecao[6].numCamisa = 7;
-    selecao[6].idade = 25;
-    selecao[6].altura = 1.76;
-    strcpy(selecao[6].posicao, "Ponta Esquerda");
-    strcpy(selecao[6].time, "Real Madrid");
-    selecao[6].ativo = 1;
-    
-    strcpy(selecao[7].nome, "Bruno Guimaraes");
-    selecao[7].numCamisa = 8;
-    selecao[7].idade = 28;
-    selecao[7].altura = 1.82;
-    strcpy(selecao[7].posicao, "Meia Central");
-    strcpy(selecao[7].time, "Newcastle");
-    selecao[7].ativo = 1;
-    
-    strcpy(selecao[8].nome, "Matheus Cunha");
-    selecao[8].numCamisa = 9;
-    selecao[8].idade = 27;
-    selecao[8].altura = 1.83;
-    strcpy(selecao[8].posicao, "Centroavante");
-    strcpy(selecao[8].time, "Manchester United");
-    selecao[8].ativo = 1;
-    
-    strcpy(selecao[9].nome, "Neymar");
-    selecao[9].numCamisa = 10;
-    selecao[9].idade = 34;
-    selecao[9].altura = 1.75;
-    strcpy(selecao[9].posicao, "Meia Ofensivo");
-    strcpy(selecao[9].time, "Santos");
-    selecao[9].ativo = 1;
-    
-    strcpy(selecao[10].nome, "Raphinha");
-    selecao[10].numCamisa = 11;
-    selecao[10].idade = 29;
-    selecao[10].altura = 1.76;
-    strcpy(selecao[10].posicao, "Ponta Direita");
-    strcpy(selecao[10].time, "Barcelona");
-    selecao[10].ativo = 1;
 
     do{
         printf("\tCONVOCACAO DA SELECAO BRASILEIRA\n\n");
@@ -162,23 +77,68 @@ int main()
                 break;
             case 2:
                 limpaTela();
-                listarJogadores(&selecao[0], contadorJogadores);
+                if(contadorJogadores > 0 && verificaAtivo(&selecao[0], contadorJogadores) != -1){
+                    listarJogadores(&selecao[0], contadorJogadores);
+                }
+                else{
+                    printf("Nenhum jogador cadastrado!\n");
+                    printf("\nPressione enter para voltar ao menu.\n");
+                    getchar();
+                }
                 break;
             case 3:
                 limpaTela();
-                editarJogador(&selecao[0], contadorJogadores);
+                if(contadorJogadores > 0 && verificaAtivo(&selecao[0], contadorJogadores) != -1){
+                    editarJogador(&selecao[0], contadorJogadores);
+                    
+                    
+                }
+                else{
+                    printf("Nenhum jogador cadastrado!\n");
+                    printf("\nPressione enter para voltar ao menu.\n");
+                    getchar();
+                }
                 break;
             case 4:
                 limpaTela();
-                excluirJogador(&selecao[0], contadorJogadores);
+                if(contadorJogadores > 0 && verificaAtivo(&selecao[0], contadorJogadores) != -1){
+                    excluirJogador(&selecao[0], contadorJogadores);
+                }
+                else{
+                    printf("Nenhum jogador cadastrado!\n");
+                    printf("\nPressione enter para voltar ao menu.\n");
+                    getchar();
+                }
                 break;
             case 5:
                 limpaTela();
-                pesquisarJogador(&selecao[0], contadorJogadores);
+                if(contadorJogadores > 0 && verificaAtivo(&selecao[0], contadorJogadores) != -1){
+                    pesquisarJogador(&selecao[0], contadorJogadores);
+                }
+                else{
+                    printf("Nenhum jogador cadastrado!\n");
+                    printf("\nPressione enter para voltar ao menu.\n");
+                    getchar();
+                }
                 break;
             case 6:
                 limpaTela();
-                estatisticas(&selecao[0], contadorJogadores);
+                if(contadorJogadores > 0 && verificaAtivo(&selecao[0], contadorJogadores) != -1){
+                    estatisticas(&selecao[0], contadorJogadores);
+                }
+                else{
+                    printf("Nenhum jogador cadastrado!\n");
+                    printf("\nPressione enter para voltar ao menu.\n");
+                    getchar();
+                }
+                break;
+            //funcao escondida no menu para popular o vetor para facilitar
+            case 11:
+                limpaTela();
+                populaVetor(&selecao[0], &contadorJogadores);
+                printf("Vetor populado com 11 jogadores!\n");
+                printf("\nPressione enter para voltar ao menu.\n");
+                getchar();
                 break;
             default:
                 limpaTela();
@@ -192,15 +152,13 @@ int main()
 
 Jogador inserirJogador(Jogador *p, int c){   
     Jogador j;
-    Jogador *pAux = p;
-    int camisaIgual = 0;
+    int idCamisa;
 
     printf("Nome do jogador: ");
     fgets(j.nome, sizeof(j.nome), stdin);
     j.nome[strcspn(j.nome, "\n")] = '\0';
 
     do{
-        p = pAux;
         do{
             printf("Numero da camisa: ");
             scanf("%d", &j.numCamisa);
@@ -210,19 +168,15 @@ Jogador inserirJogador(Jogador *p, int c){
             }
         } while(j.numCamisa < 1 || j.numCamisa > QNT_JOGADORES);
 
-        for(int i=0; i < c; i++){
-            if(j.numCamisa == p->numCamisa){    // Não da pra usar a camisa de um jogador inativo
-                printf("Camisa ja cadastrada!\n");
-                printf("Jogador com a camisa %d: %s\n\n", p->numCamisa, p->nome);
-                camisaIgual = 1;
-                break;
-            }
-            else {
-                camisaIgual = 0;
-            }
-            p++;
+        idCamisa = verificaCamisa(j.numCamisa, p, c);
+
+        //Não pode pra usar a camisa de um jogador inativo
+        if(idCamisa != -1){    
+            printf("Camisa nao pode ser usada!\n");
+            if(p[idCamisa].ativo == 1)
+                printf("Jogador com a camisa %d: %s\n\n", p[idCamisa].numCamisa, p[idCamisa].nome);    
         }
-    } while(camisaIgual == 1);
+    } while(idCamisa != -1);
 
     do{
         printf("Idade: ");
@@ -267,8 +221,17 @@ Jogador inserirJogador(Jogador *p, int c){
 
     return j;
 }
+int verificaAtivo(Jogador *p, int c){
+    for(int i=0; i < c; i++){
+        if(p[i].ativo != 0){
+            return i;
+        }
+    }
+    return -1;
+}
 
 void listarJogadores(Jogador *p, int c){
+    //retorna todos os jogadores ativos na lista
     for(int i=0; i < c; i++){
         if(p->ativo != 0){
             exibirJogador(p);
@@ -290,21 +253,28 @@ void exibirJogador(Jogador *p){
 }
 
 void editarJogador(Jogador *p, int c){
-    Jogador *pOriginal = p;
-    Jogador *pAux = p;
-    int camisa, trocarCamisa, novaCamisa, camisaIgual = 0;
-    printf("Digite o numero da camisa do jogador que voce deseja editar: ");
-    scanf("%d", &camisa);
+    int camisa, trocarCamisa, novaCamisa, camisaIgual, idCamisa;
+    do{
+        printf("Digite o numero da camisa do jogador que voce deseja editar: ");
+        scanf("%d", &camisa);
 
-    for(int i=0; i < c; i++){
-        if(p->numCamisa == camisa && p->ativo == 1){
-            printf("\nJogador encontrado! Editando...\n\n");
-            printf("Nome do jogador: ");
-            limpaBuffer();
-            fgets(p->nome, sizeof(p->nome), stdin);
-            p->nome[strcspn(p->nome, "\n")] = '\0';
+        if(camisa < 1 || camisa > QNT_JOGADORES){
+            printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n", QNT_JOGADORES);
+        }
+    } while(camisa < 1 || camisa > QNT_JOGADORES);
 
-            do{
+    //verificaCamisa retorna o indice no vetor que tem a camisa que o usuario digitou, caso nao tem eh retornado o valor -1
+    idCamisa = verificaCamisa(camisa, p, c); 
+    
+    //se existir a camisa e o jogador estiver ativo, comeca a edicao do jogador
+    if(idCamisa != -1 && p[idCamisa].ativo == 1){
+        printf("\nJogador encontrado! Editando...\n\n");
+        printf("Nome do jogador: ");
+        limpaBuffer();
+        fgets(p[idCamisa].nome, sizeof(p[idCamisa].nome), stdin);
+        p[idCamisa].nome[strcspn(p[idCamisa].nome, "\n")] = '\0';
+
+        do{
                 printf("Voce deseja alterar o numero da camisa? (digite 1 para sim, 0 para nao): ");
                 scanf("%d", &trocarCamisa);
                 limpaBuffer();
@@ -312,10 +282,9 @@ void editarJogador(Jogador *p, int c){
                     printf("Digite um numero valido!\n");
                 }
             } while(trocarCamisa < 0 || trocarCamisa > 1);
-
+            //se o usuario desejar trocar a camisa
             if(trocarCamisa == 1){
                 do{
-                    pAux = pOriginal;
                     do{
                         printf("Numero da camisa: ");
                         scanf("%d", &novaCamisa);
@@ -324,69 +293,70 @@ void editarJogador(Jogador *p, int c){
                             printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n", QNT_JOGADORES);
                         }
                     } while(novaCamisa < 1 || novaCamisa > QNT_JOGADORES);
-
-                    for(int i=0; i < c; i++){
-                        if(novaCamisa == pAux->numCamisa && novaCamisa != p->numCamisa){
-                            printf("Camisa ja cadastrada!\n");
-                            camisaIgual = 1;
-                            break;
-                        }
-                        else {
-                            camisaIgual = 0;
-                        }
-                        pAux++;
+                    //verificaCamisa retorna o indice no vetor que tem a camisa que o usuario digitou, caso nao tem eh retornado o valor -1
+                    camisaIgual = verificaCamisa(novaCamisa, p, c);
+        
+                    if(camisaIgual != -1 && camisaIgual != idCamisa){
+                        printf("Camisa ja cadastrada!\n");
                     }
-                } while(camisaIgual == 1);
+                } while(camisaIgual != -1 && camisaIgual != idCamisa); //vai se repetir enquanto o usuario digitar uma camisa ja cadastrada que nao seja a do proprio jogador sendo editado
 
-                p->numCamisa = novaCamisa;
+                p[idCamisa].numCamisa = novaCamisa;
             }
 
             do{
                 printf("Idade: ");
-                scanf("%d", &p->idade);
+                scanf("%d", &p[idCamisa].idade);
 
-                if(p->idade < 15){
+                if(p[idCamisa].idade < 15){
                     printf("Idade invalida! Nao sao convocados jogadores menores de 15 anos!\n");
                 }
 
-                if(p->idade > 60){
+                if(p[idCamisa].idade > 60){
                     printf("O jogador ja deveria ter se aposentado! Apenas jogadores mais novos que 60 anos!\n");
                 }
-            } while(p->idade < 15 || p->idade > 60);
+            } while(p[idCamisa].idade < 15 || p[idCamisa].idade > 60);
 
             do{
                 printf("Altura(em metros): ");
-                scanf("%f", &p->altura);
+                scanf("%f", &p[idCamisa].altura);
 
-                if(p->altura < 1.3){
+                if(p[idCamisa].altura < 1.3){
                     printf("Impossivel que alguem menor que 1.30m seja um jogador profissional de futebol!\n");
                 }
 
-                if(p->altura > 2.4){
+                if(p[idCamisa].altura > 2.4){
                     printf("Parece que voce se confundiu com a convocacao do basquete! Ate 2.40m! \n");
                 }
-            } while(p->altura < 1.3 || p->altura > 2.4);
+            } while(p[idCamisa].altura < 1.3 || p[idCamisa].altura > 2.4);
 
             printf("Posicao(texto): ");
             limpaBuffer();
-            fgets(p->posicao, sizeof(p->posicao), stdin);
-            p->posicao[strcspn(p->posicao, "\n")] = '\0';
+            fgets(p[idCamisa].posicao, sizeof(p[idCamisa].posicao), stdin);
+            p[idCamisa].posicao[strcspn(p[idCamisa].posicao, "\n")] = '\0';
 
             printf("Time: ");
-            fgets(p->time, sizeof(p->time), stdin);
-            p->time[strcspn(p->time, "\n")] = '\0';
-
-            p->ativo = 1;
+            fgets(p[idCamisa].time, sizeof(p[idCamisa].time), stdin);
+            p[idCamisa].time[strcspn(p[idCamisa].time, "\n")] = '\0';
 
             printf("\nJogador editado com sucesso!\n");
             printf("\nPressione enter para voltar ao menu.\n");
             getchar();
             limpaTela();
-            return;
-        }
-        p++;
     }
-    printf("Jogador nao encontrado!\n\n");
+    else
+        printf("Jogador nao encontrado!\n\n");
+}
+
+int verificaCamisa(int camisa, Jogador *p, int c){
+    //verificaCamisa retorna o indice no vetor que tem a camisa que o usuario digitou, caso nao tem eh retornado o valor -1
+    for(int i=0; i < c; i++){
+        if(p[i].numCamisa == camisa)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void pesquisarJogador(Jogador *p, int c){
@@ -399,6 +369,7 @@ void pesquisarJogador(Jogador *p, int c){
     char time[50];  
     int jogadorEncontrado = 0;
 
+    //menu de pesquisa
     printf("\tPesquisar por: \n");
     printf("1 - Nome\n");
     printf("2 - Numero da camisa\n");
@@ -517,16 +488,25 @@ void pesquisarJogador(Jogador *p, int c){
 
 void excluirJogador(Jogador *p, int c){
     int camisa;
-    printf("Digite o numero da camisa do jogador a ser excluido: ");
-    scanf("%d", &camisa);
+    do{
+        printf("Digite o numero da camisa do jogador a ser excluido: ");
+        scanf("%d", &camisa);
+        limpaBuffer();
+
+        if(camisa < 1 || camisa > QNT_JOGADORES){
+            printf("Numero de camisa invalido! Digite um numero entre 1 e %d.\n", QNT_JOGADORES);
+        }
+    } while(camisa < 1 || camisa > QNT_JOGADORES);
 
     for(int i=0; i < c; i++){
-        if(p->numCamisa == camisa && p->ativo == 1){
-            p->ativo = 0;
+        if(p[i].numCamisa == camisa && p[i].ativo == 1){
+            p[i].ativo = 0;
             printf("\nJogador excluido com sucesso!\n\n");
+            printf("\nPressione enter para voltar ao menu.\n");
+            getchar();
+            limpaTela();
             return;
         }
-        p++;
     }
     printf("\nJogador nao encontrado!\n\n");
 }
@@ -548,17 +528,11 @@ void estatisticas(Jogador *p, int c){
     char jogadorMaisAlto[30];
     strcpy(jogadorMaisAlto, "");
 
-    Jogador *pAux = p;
-    int primeiroAtivo = -1;
+    //pega o primeiro indice ativo do vetor
+    int primeiroAtivo = verificaAtivo(p, c);
 
-    for(int i=0; i < c; i++){
-        if(p->ativo != 0){
-            primeiroAtivo = i;
-            break;
-        }
-        p++;
-    }
-
+    
+    //se nao tiver nenhum indice ativo ja sai da funcao e retorna que nao ha jogador cadastrado
     if(primeiroAtivo == -1){
         printf("Nenhum jogador cadastrado!\n");
         printf("\nPressione enter para voltar ao menu.\n");
@@ -567,48 +541,46 @@ void estatisticas(Jogador *p, int c){
         return;
     }
 
-    menorIdade = p->idade;
-    maiorIdade = p->idade;
+    menorIdade = p[primeiroAtivo].idade;
+    maiorIdade = p[primeiroAtivo].idade;
     
-    strcpy(jogadorMaisNovo, p->nome);
-    strcpy(jogadorMaisVelho, p->nome);
+    strcpy(jogadorMaisNovo, p[primeiroAtivo].nome);
+    strcpy(jogadorMaisVelho, p[primeiroAtivo].nome);
 
-    menorAltura = p->altura;
-    maiorAltura = p->altura;
+    menorAltura = p[primeiroAtivo].altura;
+    maiorAltura = p[primeiroAtivo].altura;
 
-    strcpy(jogadorMaisBaixo, p->nome);
-    strcpy(jogadorMaisAlto, p->nome);
-
-    p = pAux;
+    strcpy(jogadorMaisBaixo, p[primeiroAtivo].nome);
+    strcpy(jogadorMaisAlto, p[primeiroAtivo].nome);
 
     for(int i=0; i < c; i++){
-        if(p->ativo != 0){
+        if(p[i].ativo != 0){
             totalJogadoresAtivos++;
-            somaIdade += p->idade;
-            somaAltura += p->altura;
+            somaIdade += p[i].idade;
+            somaAltura += p[i].altura;
 
-            if(p->idade < menorIdade){
-                menorIdade = p->idade;
-                strcpy(jogadorMaisNovo, p->nome);
+            if(p[i].idade < menorIdade){
+                menorIdade = p[i].idade;
+                strcpy(jogadorMaisNovo, p[i].nome);
             }
 
-            if(p->idade > maiorIdade){
-                maiorIdade = p->idade;
-                strcpy(jogadorMaisVelho, p->nome);
+            if(p[i].idade > maiorIdade){
+                maiorIdade = p[i].idade;
+                strcpy(jogadorMaisVelho, p[i].nome);
             }
 
-            if(p->altura < menorAltura){
-                menorAltura = p->altura;
-                strcpy(jogadorMaisBaixo, p->nome);
+            if(p[i].altura < menorAltura){
+                menorAltura = p[i].altura;
+                strcpy(jogadorMaisBaixo, p[i].nome);
             }
 
-            if(p->altura > maiorAltura){
-                maiorAltura = p->altura;
-                strcpy(jogadorMaisAlto, p->nome);
+            if(p[i].altura > maiorAltura){
+                maiorAltura = p[i].altura;
+                strcpy(jogadorMaisAlto, p[i].nome);
             }
         }
-        p++;
     }
+    
 
     printf("Total de jogadores ativos: %d\n", totalJogadoresAtivos);
     printf("Media de idade: %.2f anos\n", somaIdade / totalJogadoresAtivos);
@@ -632,4 +604,107 @@ void limpaBuffer(){
     do{
         c = getchar();
     } while(c != '\n' && c != EOF);
+}
+
+void populaVetor(Jogador *p, int *c){
+    //so pra facilitar caso quiser o vetor com alguns dados
+    strcpy(p[0].nome, "Alisson");
+    p[0].numCamisa = 1;
+    p[0].idade = 29;
+    p[0].altura = 1.91;
+    strcpy(p[0].posicao, "Goleiro");
+    strcpy(p[0].time, "Liverpool");
+    p[0].ativo = 1;
+    
+    strcpy(p[1].nome, "Ederson");
+    p[1].numCamisa = 2;
+    p[1].idade = 26;
+    p[1].altura = 1.83;
+    strcpy(p[1].posicao, "Meia Central");
+    strcpy(p[1].time, "Atalanta");
+    p[1].ativo = 1;
+    
+    strcpy(p[2].nome, "Gabriel Magalhaes");
+    p[2].numCamisa = 3;
+    p[2].idade = 28;
+    p[2].altura = 1.88;
+    strcpy(p[2].posicao, "Zagueiro");
+    strcpy(p[2].time, "Arsenal");
+    p[2].ativo = 1;
+    
+    strcpy(p[3].nome, "Marquinhos");
+    p[3].numCamisa = 4;
+    p[3].idade = 32;
+    p[3].altura = 1.83;
+    strcpy(p[3].posicao, "Zagueiro");
+    strcpy(p[3].time, "PSG");
+    p[3].ativo = 1;
+    
+    strcpy(p[4].nome, "Casemiro");
+    p[4].numCamisa = 5;
+    p[4].idade = 34;
+    p[4].altura = 1.83;
+    strcpy(p[4].posicao, "Volante");
+    strcpy(p[4].time, "Manchester United");
+    p[4].ativo = 1;
+    
+    strcpy(p[5].nome, "Alex Sandro");
+    p[5].numCamisa = 6;
+    p[5].idade = 35;
+    p[5].altura = 1.80;
+    strcpy(p[5].posicao, "Lat Esquerdo");
+    strcpy(p[5].time, "Flamengo");
+    p[5].ativo = 1;
+    
+    strcpy(p[6].nome, "Vinicius Jr.");
+    p[6].numCamisa = 7;
+    p[6].idade = 25;
+    p[6].altura = 1.76;
+    strcpy(p[6].posicao, "Ponta Esquerda");
+    strcpy(p[6].time, "Real Madrid");
+    p[6].ativo = 1;
+    
+    strcpy(p[7].nome, "Bruno Guimaraes");
+    p[7].numCamisa = 8;
+    p[7].idade = 28;
+    p[7].altura = 1.82;
+    strcpy(p[7].posicao, "Meia Central");
+    strcpy(p[7].time, "Newcastle");
+    p[7].ativo = 1;
+    
+    strcpy(p[8].nome, "Matheus Cunha");
+    p[8].numCamisa = 9;
+    p[8].idade = 27;
+    p[8].altura = 1.83;
+    strcpy(p[8].posicao, "Centroavante");
+    strcpy(p[8].time, "Manchester United");
+    p[8].ativo = 1;
+    
+    strcpy(p[9].nome, "Neymar");
+    p[9].numCamisa = 10;
+    p[9].idade = 34;
+    p[9].altura = 1.75;
+    strcpy(p[9].posicao, "Meia Ofensivo");
+    strcpy(p[9].time, "Santos");
+    p[9].ativo = 1;
+    
+    strcpy(p[10].nome, "Raphinha");
+    p[10].numCamisa = 11;
+    p[10].idade = 29;
+    p[10].altura = 1.76;
+    strcpy(p[10].posicao, "Ponta Direita");
+    strcpy(p[10].time, "Barcelona");
+    p[10].ativo = 1;
+
+    *c = 11;
+
+    for(int i = *c; i< QNT_JOGADORES; i++){
+        strcpy(p[i].nome, "");
+        p[i].numCamisa = 0;
+        p[i].idade = 0;
+        p[i].altura = 0;
+        strcpy(p[i].posicao, "");
+        strcpy(p[i].time, "");
+        p[i].ativo = 0;
+    }
 }
